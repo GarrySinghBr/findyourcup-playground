@@ -1,0 +1,66 @@
+# --- Authentication workspace specific ignores ---
+
+# Node / frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Backend (if Node/Express or other)
+backend/node_modules/
+backend/dist/
+backend/build/
+backend/.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+frontend/.env
+backend/.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor / tooling
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# TypeScript incremental build info
+**/*.tsbuildinfo
+
+# Coverage / test reports
+coverage/
+*.lcov
+
+# Misc caches
+.cache/
+.tmp/
+frontend/.turbo/
+
+# Yarn / pnpm integrity files
+.pnp.*
+
+# Optional: lockfiles if you plan to use a single root lock instead (uncomment if desired)
+# frontend/package-lock.json
+# backend/package-lock.json
+# frontend/pnpm-lock.yaml
+# backend/pnpm-lock.yaml
+
+# Generated assets
+frontend/public/*.png
+frontend/public/*.ico
+
+# Ignore local SSL certs
+certs/
+
+# End
