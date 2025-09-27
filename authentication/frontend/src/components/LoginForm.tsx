@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -34,16 +36,23 @@ export function LoginForm({
     defaultValues: { email: "", password: "" },
   });
 
-  function onSubmit(values: LoginValues) {
-    // placeholder; integrate real auth later
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log("Login submit", values);
-        resolve();
-      }, 600);
-    });
+  const { signIn, user } = useAuth();
+  const navigate = useNavigate();
+  const [authError, setAuthError] = React.useState<string | null>(null);
+
+  async function onSubmit(values: LoginValues) {
+    setAuthError(null);
+    const result = await signIn(values.email, values.password);
+    if (!result.ok) setAuthError(result.error!);
+    else navigate("/dashboard");
   }
+
+  // If user is already logged in (e.g., visiting /login manually) redirect away.
+  React.useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   return (
     <div
@@ -113,6 +122,11 @@ export function LoginForm({
                 Login with Google
               </Button>
             </div>
+            {authError && (
+              <p className="text-xs text-destructive" role="alert">
+                {authError}
+              </p>
+            )}
             <div className="pt-2 text-center text-xs text-muted-foreground">
               Don&apos;t have an account?{" "}
               <Link

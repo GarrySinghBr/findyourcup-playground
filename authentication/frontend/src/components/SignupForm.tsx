@@ -12,6 +12,9 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
+import { Label } from "@/components/ui/label";
 
 const signupSchema = z
   .object({
@@ -28,8 +31,6 @@ const signupSchema = z
     message: "Passwords must match",
   });
 type SignupValues = z.infer<typeof signupSchema>;
-import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
 
 export function SignupForm({
   className,
@@ -39,20 +40,38 @@ export function SignupForm({
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    watch,
   } = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   });
 
-  function onSubmit(values: SignupValues) {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log("Signup submit", values);
-        resolve();
-      }, 800);
-    });
+  const [authError, setAuthError] = React.useState<string | null>(null);
+  const [authSuccess, setAuthSuccess] = React.useState(false);
+  const { signUp, user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  async function onSubmit(values: SignupValues) {
+    setAuthError(null);
+    setAuthSuccess(false);
+    const result = await signUp(values.email, values.password, values.name);
+    if (!result.ok) {
+      setAuthError(result.error!);
+    } else {
+      setAuthSuccess(true);
+      // If signup immediately authenticates the user (email confirmation off), navigate.
+      if (user) navigate("/dashboard");
+    }
+  }
+
+  // If user is already logged in (manual navigation to /signup) redirect away.
+  React.useEffect(() => {
+    if (user) navigate("/dashboard");
+  }, [user, navigate]);
+
+  if (loading) {
+    return (
+      <div className={cn("text-sm text-muted-foreground")}>Loading...</div>
+    );
   }
 
   return (
@@ -142,6 +161,18 @@ export function SignupForm({
                 Sign up with Google
               </Button>
             </div>
+            {authError && (
+              <p className="text-xs text-destructive" role="alert">
+                {authError}
+              </p>
+            )}
+            {authSuccess && !authError && (
+              <p className="text-xs text-green-600" role="status">
+                Account created{" "}
+                <span className="font-medium">Check your email</span> (if
+                confirmation is required).
+              </p>
+            )}
             <div className="pt-2 text-center text-xs text-muted-foreground">
               Already have an account?{" "}
               <Link
