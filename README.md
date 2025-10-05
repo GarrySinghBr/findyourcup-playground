@@ -4,13 +4,12 @@ Playground repo for Find Your Cup.
 
 ## Auth (Supabase)
 
-Create a local `.env` (not committed) with:
+We have a basic working Sign-in/Login with our Supabase dashboard setup. 
 
+To test, create a local `.env` (not committed) with:
 ```
 VITE_SUPABASE_URL=your_project_url
 VITE_SUPABASE_ANON_KEY=your_public_anon_key
 ```
 
-Client is initialized in `authentication/frontend/src/services/supabaseClient.ts`.
-
-Optional next steps (not yet implemented): auth service wrapper, AuthProvider, protected routes.
+Due to Supabase limitations, we will likely need to use another Email provider as they have strict limits. However, most of our auth requirements should be met with what they have.
