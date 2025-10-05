@@ -5,6 +5,7 @@ import {
   signIn,
   signOut,
   signUp,
+  signInWithGoogle,
 } from "@/services/authService";
 
 interface AuthState {
@@ -20,6 +21,7 @@ interface AuthState {
     password: string,
     name?: string
   ) => Promise<{ ok: boolean; error?: string }>;
+  signInWithGoogle: () => Promise<{ ok: boolean; error?: string }>;
   signOut: () => Promise<void>;
 }
 
@@ -64,6 +66,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return { ok: true };
   }
 
+  async function handleSignInWithGoogle() {
+    const res = await signInWithGoogle();
+    if (!res.ok) return { ok: false, error: res.error.message };
+    return { ok: true };
+  }
+
   async function handleSignOut() {
     await signOut();
   }
@@ -74,6 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     loading,
     signIn: handleSignIn,
     signUp: handleSignUp,
+    signInWithGoogle: handleSignInWithGoogle,
     signOut: handleSignOut,
   };
 

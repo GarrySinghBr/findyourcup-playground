@@ -36,15 +36,27 @@ export function LoginForm({
     defaultValues: { email: "", password: "" },
   });
 
-  const { signIn, user } = useAuth();
+  const { signIn, signInWithGoogle, user } = useAuth();
   const navigate = useNavigate();
   const [authError, setAuthError] = React.useState<string | null>(null);
 
   async function onSubmit(values: LoginValues) {
     setAuthError(null);
     const result = await signIn(values.email, values.password);
-    if (!result.ok) setAuthError(result.error!);
-    else navigate("/dashboard");
+    if (!result.ok) {
+      setAuthError(result.error!);
+    } else {
+      navigate("/dashboard");
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setAuthError(null);
+    const result = await signInWithGoogle();
+    if (!result.ok) {
+      setAuthError(result.error!);
+    }
+    // Note: OAuth redirect happens automatically
   }
 
   // If user is already logged in (e.g., visiting /login manually) redirect away.
@@ -88,15 +100,7 @@ export function LoginForm({
               )}
             </div>
             <div className="space-y-2">
-              <div className="flex items-center text-sm">
-                <Label htmlFor="password">Password</Label>
-                <a
-                  href="#"
-                  className="ml-auto inline-block text-xs font-medium text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
-                >
-                  Forgot your password?
-                </a>
-              </div>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -117,6 +121,7 @@ export function LoginForm({
                 type="button"
                 variant="outline"
                 className="w-full"
+                onClick={handleGoogleSignIn}
                 disabled={isSubmitting}
               >
                 Login with Google

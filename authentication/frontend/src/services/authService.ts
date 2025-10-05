@@ -93,6 +93,28 @@ export async function getSession(): Promise<AuthResult<{ session: any }>> {
   }
 }
 
+export async function signInWithGoogle(): Promise<AuthResult<{}>> {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+    if (error) {
+      const mapped = mapSupabaseError(error.message);
+      return fail(mapped.message, error, mapped.code);
+    }
+    return { ok: true, data: {} };
+  } catch (err: any) {
+    return fail('Google sign-in failed. Please try again.', err);
+  }
+}
+
 export function onAuthStateChange(callback: (event: string, session: any) => void) {
   const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
     callback(event, session);

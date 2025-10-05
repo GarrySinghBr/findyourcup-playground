@@ -47,7 +47,7 @@ export function SignupForm({
 
   const [authError, setAuthError] = React.useState<string | null>(null);
   const [authSuccess, setAuthSuccess] = React.useState(false);
-  const { signUp, user, loading } = useAuth();
+  const { signUp, signInWithGoogle, user, loading } = useAuth();
   const navigate = useNavigate();
 
   async function onSubmit(values: SignupValues) {
@@ -58,14 +58,25 @@ export function SignupForm({
       setAuthError(result.error!);
     } else {
       setAuthSuccess(true);
-      // If signup immediately authenticates the user (email confirmation off), navigate.
-      if (user) navigate("/dashboard");
+      // Don't navigate - let the useEffect handle it when user is actually logged in
+      // (only works if email confirmation is disabled in Supabase)
     }
   }
 
-  // If user is already logged in (manual navigation to /signup) redirect away.
+  async function handleGoogleSignIn() {
+    setAuthError(null);
+    const result = await signInWithGoogle();
+    if (!result.ok) {
+      setAuthError(result.error!);
+    }
+    // Note: OAuth redirect happens automatically
+  }
+
+  // Redirect to dashboard when user is authenticated
   React.useEffect(() => {
-    if (user) navigate("/dashboard");
+    if (user) {
+      navigate("/dashboard");
+    }
   }, [user, navigate]);
 
   if (loading) {
@@ -156,6 +167,7 @@ export function SignupForm({
                 type="button"
                 variant="outline"
                 className="w-full"
+                onClick={handleGoogleSignIn}
                 disabled={isSubmitting}
               >
                 Sign up with Google
@@ -168,9 +180,7 @@ export function SignupForm({
             )}
             {authSuccess && !authError && (
               <p className="text-xs text-green-600" role="status">
-                Account created{" "}
-                <span className="font-medium">Check your email</span> (if
-                confirmation is required).
+                Account created successfully! Redirecting...
               </p>
             )}
             <div className="pt-2 text-center text-xs text-muted-foreground">
